@@ -114,7 +114,7 @@ export default function Project({
                 src={src}
                 alt={alt}
                 fill
-                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                className="object-cover"
             />
             {/* Overlay pour améliorer la visibilité */}
             <div className="absolute inset-0 bg-black/10"></div>
