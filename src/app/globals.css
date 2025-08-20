@@ -16,3 +16,161 @@ body {
 h1 {
   font-family: var(--font-serif);
 }
+
+/* Styles spécifiques Safari pour éviter les bugs d'images */
+@supports (-webkit-appearance: none) {
+  /* Force hardware acceleration sur Safari */
+  img, picture, video, canvas, svg {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
+    will-change: transform;
+  }
+
+  /* Évite les problèmes de redimensionnement sur Safari */
+  .next-image-wrapper {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    overflow: hidden;
+  }
+
+  /* Stabilise les transitions sur Safari */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Évite les problèmes de layout sur Safari */
+  .project-section {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+  }
+
+  /* Optimise les images Next.js sur Safari */
+  .next-image {
+    transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    -webkit-transform: translateZ(0) !important;
+    -webkit-perspective: 1000px !important;
+    perspective: 1000px !important;
+    will-change: transform !important;
+    /* Évite les problèmes de redimensionnement */
+    min-width: 100% !important;
+    min-height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+  }
+
+  /* Évite les problèmes de hover sur Safari */
+  .group:hover .group-hover\:opacity-100 {
+    -webkit-transition: opacity 500ms ease-out;
+    transition: opacity 500ms ease-out;
+  }
+
+  /* Force la stabilité des grilles sur Safari */
+  .grid {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+  }
+
+  /* Évite les problèmes de flexbox sur Safari */
+  .flex {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+  }
+}
+
+/* Classes utilitaires pour Safari - plus performantes que les styles inline */
+.safari-stable {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+.safari-image-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  overflow: hidden;
+  /* Évite les problèmes de redimensionnement */
+  min-width: 100%;
+  min-height: 100%;
+  max-width: none;
+  max-height: none;
+}
+
+.safari-overlay {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+}
+
+.safari-zoom-icon {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  -webkit-transition: opacity 500ms ease-out;
+  transition: opacity 500ms ease-out;
+}
+
+.safari-text-content {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+}
+
+.safari-section {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+}
+
+/* Styles généraux pour améliorer la stabilité des images */
+img, picture, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Évite les problèmes de layout shift */
+.image-container {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimise les transitions pour tous les navigateurs */
+.transition-optimized {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Force la stabilité sur les éléments avec des images */
+[data-fancybox] {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  overflow: hidden;
+}

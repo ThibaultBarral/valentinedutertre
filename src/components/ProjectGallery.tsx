@@ -66,6 +66,19 @@ export default function ProjectGallery({ imagesFolder, imageNames }: ProjectGall
             // Attendre que toutes les images soient chargées
             const timer = setTimeout(() => {
                 Fancybox.bind('[data-fancybox="gallery"]');
+
+                // Stabilisation Safari après initialisation
+                setTimeout(() => {
+                    const fancyboxImages = document.querySelectorAll('.fancybox__content img');
+                    fancyboxImages.forEach((img: Element) => {
+                        if (img instanceof HTMLImageElement) {
+                            img.style.transform = 'translateZ(0)';
+                            img.style.backfaceVisibility = 'hidden';
+                            img.style.webkitBackfaceVisibility = 'hidden';
+                            img.style.webkitTransform = 'translateZ(0)';
+                        }
+                    });
+                }, 1500);
             }, 1000); // Attendre 1 seconde pour que les images se chargent
 
             return () => clearTimeout(timer);
@@ -92,6 +105,13 @@ export default function ProjectGallery({ imagesFolder, imageNames }: ProjectGall
                         data-caption={image.alt}
                         data-thumb={image.src}
                         href={image.src}
+                        style={{
+                            // Styles de stabilisation Safari
+                            transform: 'translateZ(0)',
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                            WebkitTransform: 'translateZ(0)',
+                        }}
                     >
                         {/* Lien caché pour Fancybox */}
                     </a>
@@ -107,7 +127,12 @@ export default function ProjectGallery({ imagesFolder, imageNames }: ProjectGall
                 height: '200px',
                 overflow: 'hidden',
                 pointerEvents: 'none',
-                zIndex: -1
+                zIndex: -1,
+                // Styles de stabilisation Safari
+                transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                WebkitTransform: 'translateZ(0)',
             }}>
                 {allImages.map((image, index) => (
                     <Image
@@ -116,10 +141,19 @@ export default function ProjectGallery({ imagesFolder, imageNames }: ProjectGall
                         alt={image.alt}
                         width={50}
                         height={50}
+                        className="next-image"
                         style={{
                             objectFit: 'cover',
                             margin: '2px',
-                            display: 'inline-block'
+                            display: 'inline-block',
+                            // Styles de stabilisation Safari
+                            transform: 'translateZ(0)',
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                            WebkitTransform: 'translateZ(0)',
+                            WebkitPerspective: '1000px',
+                            perspective: '1000px',
+                            willChange: 'transform',
                         }}
                     />
                 ))}

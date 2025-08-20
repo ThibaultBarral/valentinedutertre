@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useMemo, useState, useEffect } from 'react';
 import ProjectGallery from './ProjectGallery';
+import { siteConfig } from '../lib/config';
 
 interface ProjectProps {
     id: string;
@@ -13,6 +14,7 @@ interface ProjectProps {
     imagesFolder: string; // Chemin vers le dossier des images
     imageNames: string[]; // Noms des 3 images dans l'ordre souhaité
     layout?: 'default' | 'alternate'; // Disposition des éléments
+    disableImageAnalysis?: boolean; // Désactive l'API d'analyse d'images
 }
 
 export default function Project({
@@ -22,7 +24,8 @@ export default function Project({
     description2,
     imagesFolder,
     imageNames,
-    layout = 'default'
+    layout = 'default',
+    disableImageAnalysis = siteConfig.disableImageAnalysis
 }: ProjectProps) {
     // Construction dynamique des chemins d'images
     const imagePaths = useMemo(() => ({
@@ -31,15 +34,31 @@ export default function Project({
         image3: `/${imagesFolder}/${imageNames[2]}`,
     }), [imagesFolder, imageNames]);
 
-    // États pour les descriptions dynamiques des images
+    // États pour les descriptions dynamiques des images - appelé une seule fois
     const [dynamicAlts, setDynamicAlts] = useState({
         image1: `Vue du projet ${imagesFolder}`,
         image2: `Vue du projet ${imagesFolder}`,
         image3: `Vue du projet ${imagesFolder}`
     });
 
-    // Générer les descriptions dynamiques pour les 3 images principales
+    // Générer les descriptions dynamiques pour les 3 images principales - UNE SEULE FOIS
     useEffect(() => {
+        // Si l'analyse d'images est désactivée, utiliser seulement les fallbacks
+        if (disableImageAnalysis) {
+            const fallbackAlts = {
+                image1: `Vue du projet ${imagesFolder}`,
+                image2: `Vue du projet ${imagesFolder}`,
+                image3: `Vue du projet ${imagesFolder}`
+            };
+            setDynamicAlts(fallbackAlts);
+            return;
+        }
+
+        // Vérifier si on a déjà généré les alts pour éviter les appels répétés
+        if (dynamicAlts.image1 !== `Vue du projet ${imagesFolder}`) {
+            return; // Déjà généré, pas besoin de refaire
+        }
+
         const generateDynamicAlts = async () => {
             try {
                 // Appeler l'API pour analyser les 3 images principales
@@ -94,9 +113,9 @@ export default function Project({
         };
 
         generateDynamicAlts();
-    }, [imagesFolder, imageNames, dynamicAlts]);
+    }, [imagesFolder, imageNames, disableImageAnalysis, dynamicAlts]); // Ajouté dynamicAlts
 
-    // Composant Image avec zoom et overlay - Mobile Optimized
+    // Composant Image avec zoom et overlay - Safari Optimized
     const ImageWithOverlay = ({ src, alt, className, fancyboxSrc, fancyboxCaption }: {
         src: string;
         alt: string;
@@ -105,7 +124,7 @@ export default function Project({
         fancyboxCaption: string;
     }) => (
         <div
-            className={`relative overflow-hidden cursor-pointer group ${className}`}
+            className={`relative overflow-hidden cursor-pointer group safari-stable safari-image-container ${className}`}
             data-fancybox="gallery"
             data-src={fancyboxSrc}
             data-caption={fancyboxCaption}
@@ -114,12 +133,22 @@ export default function Project({
                 src={src}
                 alt={alt}
                 fill
-                className="object-cover"
+                className="object-cover next-image safari-stable"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority={false}
+                loading="lazy"
+                quality={85}
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
             />
             {/* Overlay pour améliorer la visibilité */}
-            <div className="absolute inset-0 bg-black/10"></div>
-            {/* Icône de zoom - Mobile Optimized */}
-            <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/90 sm:bg-white/80 rounded-full p-1.5 sm:p-2 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+            <div
+                className="absolute inset-0 bg-black/10 safari-overlay"
+            ></div>
+            {/* Icône de zoom - Safari Optimized */}
+            <div
+                className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/90 sm:bg-white/80 rounded-full p-1.5 sm:p-2 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out safari-zoom-icon"
+            >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                 </svg>
@@ -127,9 +156,11 @@ export default function Project({
         </div>
     );
 
-    // Composant de contenu textuel - Mobile Optimized
+    // Composant de contenu textuel - Safari Optimized
     const TextContent = ({ isAlternate = false }: { isAlternate?: boolean }) => (
-        <div className={`flex flex-col justify-center p-4 sm:p-6 lg:p-8 xl:p-12 max-w-full lg:max-w-xl xl:max-w-2xl ${isAlternate ? 'lg:ml-32 xl:ml-64' : ''}`}>
+        <div
+            className={`flex flex-col justify-center p-4 sm:p-6 lg:p-8 xl:p-12 max-w-full lg:max-w-xl xl:max-w-2xl safari-text-content ${isAlternate ? 'lg:ml-32 xl:ml-64' : ''}`}
+        >
             {/* Titre principal - Responsive Typography */}
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif mb-2 sm:mb-3 leading-tight">
                 {title}
@@ -153,9 +184,11 @@ export default function Project({
     );
 
     if (layout === 'alternate') {
-        // Disposition alternative : image2, image1, text, image3 - Mobile Optimized
+        // Disposition alternative : image2, image1, text, image3 - Safari Optimized
         return (
-            <section className="py-4 sm:py-6 px-2 sm:px-6">
+            <section
+                className="py-4 sm:py-6 px-2 sm:px-6 safari-section"
+            >
                 {/* Layout Mobile : 3 images puis texte */}
                 <div className="lg:hidden space-y-4">
                     {/* Image 1 */}
@@ -231,9 +264,11 @@ export default function Project({
         );
     }
 
-    // Disposition par défaut : image1, image2, image3, text - Mobile Optimized
+    // Disposition par défaut : image1, image2, image3, text - Safari Optimized
     return (
-        <section className="py-4 sm:py-6 px-2 sm:px-6">
+        <section
+            className="py-4 sm:py-6 px-2 sm:px-6 safari-section"
+        >
             {/* Layout Mobile : 3 images puis texte */}
             <div className="lg:hidden space-y-4">
                 {/* Image 1 */}
