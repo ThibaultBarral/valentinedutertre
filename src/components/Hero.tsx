@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 export default function Hero() {
     return (
-        <motion.div className='relative h-[calc(100vh-3rem)] m-2 sm:m-4 md:m-6' initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+        <motion.div className='relative h-[calc(100svw-3rem)] m-2 sm:m-4 md:m-6' initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
             {/* CV Download Button - Mobile Optimized */}
             <motion.div className="absolute top-4 right-4 sm:top-6 md:top-8 sm:right-6 md:right-8 z-20" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
                 <a
