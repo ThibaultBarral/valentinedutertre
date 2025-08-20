@@ -39,30 +39,48 @@ export default function IntelligentImageAlt({
                     const intelligentDescription = generateLocalDescription(fileName);
                     setIntelligentAlt(intelligentDescription);
                 } else {
-                    // En production, essayer Cloudinary
-                    const baseUrl = window.location.origin;
-                    const fullImageUrl = `${baseUrl}${src}`;
+                    // En production, essayer Cloudinary seulement si les variables d'environnement sont configurées
+                    if (process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME &&
+                        process.env.CLOUDINARY_API_KEY &&
+                        process.env.CLOUDINARY_API_SECRET) {
 
-                    const response = await fetch('/api/analyze-image', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ imageUrl: fullImageUrl }),
-                    });
+                        const baseUrl = window.location.origin;
+                        const fullImageUrl = `${baseUrl}${src}`;
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.description) {
-                            setIntelligentAlt(data.description);
-                        } else {
-                            // Fallback si l'API échoue
+                        try {
+                            const response = await fetch('/api/analyze-image', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ imageUrl: fullImageUrl }),
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data.description && data.source !== 'fallback') {
+                                    setIntelligentAlt(data.description);
+                                } else {
+                                    // Fallback si l'API retourne un fallback
+                                    const fileName = src.split('/').pop() || '';
+                                    const intelligentDescription = generateLocalDescription(fileName);
+                                    setIntelligentAlt(intelligentDescription);
+                                }
+                            } else {
+                                // Fallback si l'API échoue
+                                const fileName = src.split('/').pop() || '';
+                                const intelligentDescription = generateLocalDescription(fileName);
+                                setIntelligentAlt(intelligentDescription);
+                            }
+                        } catch (fetchError) {
+                            console.log('Fetch error, using fallback:', fetchError);
+                            // Fallback si la requête échoue
                             const fileName = src.split('/').pop() || '';
                             const intelligentDescription = generateLocalDescription(fileName);
                             setIntelligentAlt(intelligentDescription);
                         }
                     } else {
-                        // Fallback si l'API échoue
+                        // Si Cloudinary n'est pas configuré, utiliser le fallback
                         const fileName = src.split('/').pop() || '';
                         const intelligentDescription = generateLocalDescription(fileName);
                         setIntelligentAlt(intelligentDescription);
@@ -70,7 +88,7 @@ export default function IntelligentImageAlt({
                 }
 
             } catch (error) {
-                console.log('Analyse échouée, utilisation du fallback');
+                console.log('Analyse échouée, utilisation du fallback:', error);
                 setIntelligentAlt(fallbackAlt);
             } finally {
                 setIsAnalyzing(false);
@@ -119,7 +137,7 @@ export default function IntelligentImageAlt({
 
     return (
         <div className="relative w-full h-full">
-            <Image {...imageProps} />
+            <Image {...imageProps} alt={intelligentAlt} />
             {isAnalyzing && (
                 <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full z-10">
                     IA...

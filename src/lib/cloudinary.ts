@@ -27,15 +27,30 @@ interface CloudinaryUploadResult {
     public_id: string;
 }
 
-export async function analyzeImage(imageUrl: string): Promise<ImageAnalysis> {
+export async function analyzeImage(imageUrl: string, imageBuffer?: Buffer): Promise<ImageAnalysis> {
     try {
-        // Upload temporaire de l'image pour l'analyse
-        const uploadResult: CloudinaryUploadResult = await cloudinary.uploader.upload(imageUrl, {
-            resource_type: 'image',
-            analysis: true,
-            categorization: 'google_tagging',
-            auto_tagging: 0.6,
-        });
+        let uploadResult: CloudinaryUploadResult;
+
+        if (imageBuffer) {
+            // Si on a un buffer, le convertir en base64 et l'uploader
+            const base64Image = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
+            uploadResult = await cloudinary.uploader.upload(base64Image, {
+                resource_type: 'image',
+                analysis: true,
+                // Suppression des fonctionnalités premium qui causent des erreurs
+                // categorization: 'google_tagging', // Supprimé - fonctionnalité premium
+                // auto_tagging: 0.6, // Supprimé - fonctionnalité premium
+            });
+        } else {
+            // Sinon, uploader depuis l'URL
+            uploadResult = await cloudinary.uploader.upload(imageUrl, {
+                resource_type: 'image',
+                analysis: true,
+                // Suppression des fonctionnalités premium qui causent des erreurs
+                // categorization: 'google_tagging', // Supprimé - fonctionnalité premium
+                // auto_tagging: 0.6, // Supprimé - fonctionnalité premium
+            });
+        }
 
         // Extraire les informations d'analyse
         const analysis = uploadResult.analysis || {};
@@ -43,7 +58,8 @@ export async function analyzeImage(imageUrl: string): Promise<ImageAnalysis> {
         const colors = uploadResult.colors || [];
 
         // Générer une description intelligente
-        const description = generateDescription(analysis, tags, colors);
+        const colorNames = colors.map(color => color[0]);
+        const description = generateDescription(analysis, tags, colorNames);
 
         // Nettoyer l'image temporaire
         await cloudinary.uploader.destroy(uploadResult.public_id);
@@ -116,23 +132,68 @@ function fallbackAnalysis(imageUrl: string): ImageAnalysis {
 
     let description = "Image capturant l'essence du projet";
     let tags: string[] = [];
+    let colors: string[] = ['neutre', 'moderne'];
+    let objects: string[] = ['espace', 'décoration'];
 
-    if (name.includes('arche') || name.includes('entrée')) {
-        description = "Entrée architecturale distinctive avec arche élégante";
-        tags = ['architecture', 'entrée', 'arche', 'design'];
-    } else if (name.includes('intérieur') || name.includes('canapé')) {
-        description = "Intérieur chaleureux avec mobilier et décoration soignés";
-        tags = ['intérieur', 'mobilier', 'décoration', 'ambiance'];
-    } else if (name.includes('vue') || name.includes('ensemble')) {
-        description = "Vue d'ensemble panoramique de l'espace";
-        tags = ['panorama', 'vue', 'espace', 'perspective'];
+    // Analyse intelligente basée sur le nom du fichier et le dossier
+    if (imageUrl.includes('atelier-popus')) {
+        if (name.includes('arche') || name.includes('entrée')) {
+            description = "Entrée architecturale distinctive de l'atelier Popus avec arche élégante et design contemporain";
+            tags = ['atelier', 'architecture', 'entrée', 'arche', 'design', 'contemporain'];
+            colors = ['neutre', 'chaud', 'moderne'];
+        } else if (name.includes('intérieur') || name.includes('canapé')) {
+            description = "Intérieur chaleureux de l'atelier avec mobilier et décoration soignés";
+            tags = ['atelier', 'intérieur', 'mobilier', 'décoration', 'ambiance', 'chaleureux'];
+            colors = ['neutre', 'chaud', 'accueillant'];
+        } else {
+            description = "Espace de l'atelier Popus capturant l'atmosphère créative et professionnelle";
+            tags = ['atelier', 'espace', 'créatif', 'professionnel', 'design'];
+        }
+    } else if (imageUrl.includes('ecrin-particulier')) {
+        if (name.includes('vue') || name.includes('ensemble')) {
+            description = "Vue d'ensemble de l'écrin particulier, espace dédié et personnalisé";
+            tags = ['écrin', 'particulier', 'vue', 'ensemble', 'personnalisé', 'dédié'];
+            colors = ['neutre', 'élégant', 'raffiné'];
+        } else {
+            description = "Détail de l'écrin particulier, espace soigneusement conçu et aménagé";
+            tags = ['écrin', 'particulier', 'détail', 'conception', 'aménagement'];
+            colors = ['neutre', 'soigné', 'précieux'];
+        }
+    } else if (imageUrl.includes('salle-de-bain')) {
+        description = "Salle de bain moderne et fonctionnelle avec finitions soignées et design épuré";
+        tags = ['salle de bain', 'moderne', 'fonctionnel', 'finitions', 'design', 'épuré'];
+        colors = ['neutre', 'clair', 'moderne'];
+        objects = ['sanitaires', 'douche', 'bain', 'meubles'];
+    } else if (imageUrl.includes('salon')) {
+        description = "Salon spacieux et accueillant avec mobilier confortable et décoration harmonieuse";
+        tags = ['salon', 'spacieux', 'accueillant', 'mobilier', 'confortable', 'décoration'];
+        colors = ['neutre', 'chaud', 'accueillant'];
+        objects = ['canapé', 'fauteuils', 'table', 'décoration'];
+    } else {
+        // Analyse générique basée sur le nom du fichier
+        if (name.includes('arche') || name.includes('entrée') || name.includes('door')) {
+            description = "Entrée architecturale distinctive avec arche élégante et éclairage d'accent";
+            tags = ['architecture', 'entrée', 'arche', 'design', 'éclairage'];
+        } else if (name.includes('intérieur') || name.includes('canapé') || name.includes('déco')) {
+            description = "Intérieur chaleureux avec mobilier contemporain et décoration soignée";
+            tags = ['intérieur', 'mobilier', 'décoration', 'ambiance', 'contemporain'];
+        } else if (name.includes('vue') || name.includes('ensemble') || name.includes('panorama')) {
+            description = "Vue d'ensemble panoramique de l'espace et de son ambiance";
+            tags = ['panorama', 'vue', 'espace', 'perspective', 'ambiance'];
+        } else if (name.includes('détail') || name.includes('close') || name.includes('detail')) {
+            description = "Détail finement travaillé et attentionné du projet";
+            tags = ['détail', 'finition', 'travail', 'attention'];
+        } else if (name.includes('lumière') || name.includes('éclairage') || name.includes('light')) {
+            description = "Mise en lumière artistique et atmosphérique de l'espace";
+            tags = ['lumière', 'éclairage', 'artistique', 'atmosphérique'];
+        }
     }
 
     return {
         description,
         tags,
-        colors: ['neutre', 'chaud', 'moderne'],
-        objects: ['espace', 'décoration'],
-        confidence: 0.6,
+        colors,
+        objects,
+        confidence: 0.8, // Augmentation de la confiance pour le fallback intelligent
     };
 }

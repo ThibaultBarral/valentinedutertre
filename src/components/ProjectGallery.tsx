@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Fancybox } from '@fancyapps/ui';
 import '@fancyapps/ui/dist/fancybox/fancybox.css';
 import ImagePreloader from './ImagePreloader';
+import Image from 'next/image';
 
 interface ProjectGalleryProps {
     imagesFolder: string;
@@ -45,7 +46,7 @@ export default function ProjectGallery({ imagesFolder, imageNames }: ProjectGall
 
                     setAllImages(fallbackImages);
                 }
-            } catch (error) {
+            } catch {
                 console.log('Impossible de charger la liste des images, utilisation du fallback');
                 // Utiliser les 3 images connues
                 setAllImages([
@@ -109,12 +110,12 @@ export default function ProjectGallery({ imagesFolder, imageNames }: ProjectGall
                 zIndex: -1
             }}>
                 {allImages.map((image, index) => (
-                    <img
+                    <Image
                         key={`thumb-${index}`}
                         src={image.src}
                         alt={image.alt}
-                        width="50"
-                        height="50"
+                        width={50}
+                        height={50}
                         style={{
                             objectFit: 'cover',
                             margin: '2px',
