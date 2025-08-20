@@ -11,8 +11,8 @@ const Footer = () => {
                     {/* Section Contact */}
                     <div className="text-center md:text-left">
                         <div className="space-y-2">
-                            <p className="text-lg">+33 6 95 43 73 84</p>
-                            <p className="text-lg">
+                            <p className="text-sm sm:text-lg">+33 6 95 43 73 84</p>
+                            <p className="text-sm sm:text-lg">
                                 <a
                                     href="mailto:valentinedutertre@gmail.com"
                                     className="underline hover:text-gray-300 transition-colors"
@@ -36,7 +36,7 @@ const Footer = () => {
                             >
                                 <FontAwesomeIcon
                                     icon={faInstagram}
-                                    className="w-16 h-16 text-2xl"
+                                    className="w-10 h-10 sm:w-16 sm:h-16 text-lg sm:text-2xl"
                                 />
                             </a>
 
@@ -50,7 +50,7 @@ const Footer = () => {
                             >
                                 <FontAwesomeIcon
                                     icon={faLinkedin}
-                                    className="w-16 h-16 text-2xl"
+                                    className="w-10 h-10 sm:w-16 sm:h-16 text-lg sm:text-2xl"
                                 />
                             </a>
                         </div>
@@ -59,10 +59,10 @@ const Footer = () => {
 
                 {/* Copyright */}
                 <div className="border-t border-gray-800 mt-8 pt-6 text-center">
-                    <p className="text-gray-400">
+                    <p className="text-gray-400 text-xs sm:text-base">
                         © {new Date().getFullYear()} Valentine Dutertre. Tous droits réservés.
                     </p>
-                    <p className="text-gray-500 text-sm mt-2">
+                    <p className="text-gray-500 text-xs sm:text-sm mt-2">
                         Développé par{' '}
                         <a
                             href="https://pryzm.agency/"
